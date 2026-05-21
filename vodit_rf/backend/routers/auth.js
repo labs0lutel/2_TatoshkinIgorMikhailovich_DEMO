@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
 
     try{
         const exists = await pool.query('SELECT id FROM users WHERE login = $1', [login]);
-        if (exists.row.length > 0){
+        if (exists.rows.length > 0){
             return res.status(400).json({message: 'Логин уже занят'})
         }
 
@@ -27,6 +27,7 @@ router.post('/register', async (req, res) => {
         );
         res.json({message: 'Регистрация успешна'});
     } catch (err){
+        console.error('REGISTER ERROR:', err.message);
         res.status(500).json({message: 'Ошибка сервера', error: err.message});
     }
 });
@@ -38,7 +39,7 @@ router.post('/login', async (req, res) => {
         if (result.rows.length === 0 ){
             return res.status(400).json({message: 'Неверный логин или пароль'})
         }
-        const user = result.row[0];
+        const user = result.rows[0];
         const valid = await bcrypt.compare(password, user.password);
         if(!valid) return res.status(400).json({message: 'Неверный логин или пароль'});
 
